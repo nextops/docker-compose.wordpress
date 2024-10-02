@@ -1,0 +1,29 @@
+services:
+
+  wordpress:
+    image: wordpress:6.6.2-php8.3-apache
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress_data:/var/www/html
+
+  db:
+    image: mariadb:11.4.3-noble
+    restart: always
+    environment:
+      MARIADB_DATABASE: exampledb
+      MARIADB_USER: exampleuser
+      MARIADB_PASSWORD: examplepass
+      MARIADB_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/MARIADB
+
+volumes:
+  wordpress_data:
+  db:
