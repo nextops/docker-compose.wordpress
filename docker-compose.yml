@@ -2,6 +2,8 @@ services:
 
   wordpress:
     image: wordpress:6.6.2-php8.3-apache
+    depends_on:
+      - db
     restart: always
     ports:
       - 8080:80
@@ -12,6 +14,25 @@ services:
       WORDPRESS_DB_NAME: exampledb
     volumes:
       - wordpress_data:/var/www/html
+
+  # init container to configure WordPress
+  wpcli:
+    image: wordpress:cli-2.11.0-php8.3
+    depends_on:
+      - db
+      - wordpress
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+      # path to the wp-cli config file
+      WP_CLI_CONFIG_PATH: /tmp/wp-cli.yml
+    restart: "no"
+    entrypoint: [ "bash", "-c", "sleep 10 && wp core install"]
+    volumes:
+    - wordpress_data:/var/www/html
+    - ./wp-cli.yml:/tmp/wp-cli.yml
 
   db:
     image: mariadb:11.4.3-noble

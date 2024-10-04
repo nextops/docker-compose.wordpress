@@ -1,0 +1,20 @@
+# see https://make.wordpress.org/cli/handbook/references/config/
+path: /var/www/html
+url: http://localhost:8080
+user: admin
+color: false
+
+core install:
+  url: http://localhost:8080
+  title: "My WordPress Site"
+  admin_user: admin
+  admin_password: foobar01
+  admin_email: noone@nowhere.com
+
+plugin:
+  activate:
+    - akismet
+    - wordfence
+
+theme:
+  activate: twentytwentytwo
