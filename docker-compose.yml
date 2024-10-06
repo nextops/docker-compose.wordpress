@@ -16,11 +16,14 @@ services:
       - wordpress_data:/var/www/html
 
   # init container to configure WordPress
+  # config data for `core install` is in wp-cli.yml
   wpcli:
     image: wordpress:cli-2.11.0-php8.3
     depends_on:
-      - db
-      - wordpress
+      wordpress:
+        condition: service_started
+      db:
+        condition: service_healthy
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: exampleuser
@@ -29,7 +32,7 @@ services:
       # path to the wp-cli config file
       WP_CLI_CONFIG_PATH: /tmp/wp-cli.yml
     restart: "no"
-    entrypoint: [ "bash", "-c", "sleep 10 && wp core install"]
+    entrypoint: [ "bash", "-c", "wp core install"]
     volumes:
     - wordpress_data:/var/www/html
     - ./wp-cli.yml:/tmp/wp-cli.yml
@@ -42,6 +45,13 @@ services:
       MARIADB_USER: exampleuser
       MARIADB_PASSWORD: examplepass
       MARIADB_RANDOM_ROOT_PASSWORD: '1'
+    healthcheck:
+        # see https://mariadb.com/kb/en/using-healthcheck-sh/
+        test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+        start_period: 1s
+        interval: 2s
+        timeout: 2s
+        retries: 3
     volumes:
       - db:/var/lib/MARIADB
 
