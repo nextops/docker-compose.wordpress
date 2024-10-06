@@ -1,3 +1,9 @@
+x-common-variables: &common-variables
+  WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+  WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+  WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+  WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+
 services:
 
   wordpress:
@@ -7,11 +13,7 @@ services:
     restart: always
     ports:
       - 8080:80
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledb
+    environment: *common-variables
     volumes:
       - wordpress_data:/var/www/html
 
@@ -25,11 +27,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledb
-      # path to the wp-cli config file
+      <<: *common-variables
       WP_CLI_CONFIG_PATH: /tmp/wp-cli.yml
     restart: "no"
     entrypoint: [ "bash", "-c", "wp core install"]
@@ -41,9 +39,9 @@ services:
     image: mariadb:11.4.3-noble
     restart: always
     environment:
-      MARIADB_DATABASE: exampledb
-      MARIADB_USER: exampleuser
-      MARIADB_PASSWORD: examplepass
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME}
+      MARIADB_USER: ${WORDPRESS_DB_USER}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       MARIADB_RANDOM_ROOT_PASSWORD: '1'
     healthcheck:
         # see https://mariadb.com/kb/en/using-healthcheck-sh/
