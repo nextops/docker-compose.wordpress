@@ -30,10 +30,12 @@ services:
       <<: *common-variables
       WP_CLI_CONFIG_PATH: /tmp/wp-cli.yml
     restart: "no"
-    entrypoint: [ "bash", "-c", "wp core install"]
+    entrypoint: [ "/tmp/wp-setup.sh" ]
     volumes:
     - wordpress_data:/var/www/html
     - ./wp-cli.yml:/tmp/wp-cli.yml
+    - ./wp-setup.sh:/tmp/wp-setup.sh
+    user: 33:33 # match the id of the www-data user in the wordpress container
 
   db:
     image: mariadb:11.4.3-noble
